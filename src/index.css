@@ -1,0 +1,17 @@
+.header {
+    margin-top: 15px;
+}
+.chart {
+    color: #000000;
+    height: 400px;
+}
+
+.token-info-chart {
+    height: 275px;
+    color: #000000;
+}
+
+.separator {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}

@@ -1,0 +1,36 @@
+{
+  "name": "website",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@nivo/bar": "^0.52.1",
+    "@nivo/pie": "^0.52.1",
+    "@nivo/treemap": "^0.52.1",
+    "@nivo/waffle": "^0.52.1",
+    "eosjs": "^20.0.0-beta3",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-scripts": "2.1.8",
+    "react-vis": "^1.11.6",
+    "scatterjs-core": "^2.7.16",
+    "scatterjs-plugin-eosjs2": "^1.5.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "@babel/runtime": "^7.3.4"
+  }
+}
