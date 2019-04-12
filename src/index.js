@@ -13,7 +13,11 @@ const tokenContract = {
     account: 'gre111111111',
     symbol: 'ENT'
 };
-const rpc = new JsonRpc('https://jungle2.cryptolions.io:443');
+const rewardsContract = {
+    account: "gre1111111p1",
+}
+//const rpc = new JsonRpc('https://jungle2.cryptolions.io:443');
+const rpc = new JsonRpc('http://127.0.0.1:8888');
 const network = {
     blockchain: 'eos',
     protocol: 'https',
@@ -60,6 +64,106 @@ function IdentityInfo(props) {
     );
 }
 
+class Actions extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            actions: [],
+        }
+    }
+
+    componentDidMount() {
+        this.getRewardsActions(this.props.actionTypeId);
+    }
+
+    async getRewardsActions(actionTypeId) {
+        try {
+            var result = await rpc.get_table_rows({
+                code: rewardsContract.account,
+                scope: actionTypeId,
+                table: 'rwdsacts'
+            });
+            console.log(result);
+
+            this.setState({
+                actions: result.rows,
+            });
+        } catch (e) {
+            console.log('\nCaught exception: ' + e);
+
+            if (e instanceof RpcError) {
+                console.log(JSON.stringify(e.json, null, 2));
+            }
+        }
+    }
+
+    render() {
+        const rewardsActions = this.state.actions.map(action => {
+            return (
+                <li key={action.id}>
+                    {action.id} | {action.source} | {action.owner} | {action.current_pay_outs} | {action.rewards_paid}
+                </li>
+            )
+        });
+
+        return (
+            <ul>
+                {rewardsActions}
+            </ul>
+        );
+    }
+}
+
+class HistoricalActions extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            actions: [],
+        }
+    }
+
+    componentDidMount() {
+        this.getRewardsActions(this.props.actionTypeId);
+    }
+
+    async getRewardsActions(actionTypeId) {
+        try {
+            var result = await rpc.get_table_rows({
+                code: rewardsContract.account,
+                scope: actionTypeId,
+                table: 'rwdshistacts'
+            });
+            console.log(result);
+
+            this.setState({
+                actions: result.rows,
+            });
+        } catch (e) {
+            console.log('\nCaught exception: ' + e);
+
+            if (e instanceof RpcError) {
+                console.log(JSON.stringify(e.json, null, 2));
+            }
+        }
+    }
+
+    render() {
+        const rewardsActions = this.state.actions.map(action => {
+            return (
+                <li key={action.id}>
+                    {action.id} | {action.source} | {action.owner} | {action.rewards_paid}
+                </li>
+            )
+        });
+
+        return (
+            <ul>
+                {rewardsActions}
+            </ul>
+        );
+    }
+}
+
 class Main extends Component {
     constructor(props) {
         super(props);
@@ -85,6 +189,12 @@ class Main extends Component {
                     balance: null,
                 }
             },
+            rewardsState: {
+
+            },
+            rewardsActionTypes: [
+
+            ],
             displayIdentityInfo: false,
         }
     }
@@ -93,6 +203,8 @@ class Main extends Component {
         this.getTokenInfo();
         this.getInflationInfo();
         this.getInflationPools();
+        this.getRewardsState();
+        this.getRewardsActionTypes();
 
         this.intervalTokenInfo = setInterval(() => this.getTokenInfo(), 6000);
         this.intervalInflationInfo = setInterval(() => this.getInflationInfo(), 6000);
@@ -246,6 +358,48 @@ class Main extends Component {
         }
     }
 
+    async getRewardsState() {
+        try {
+            var result = await rpc.get_table_rows({
+                code: rewardsContract.account,
+                scope: rewardsContract.account,
+                table: 'state'
+            });
+            console.log(result);
+
+            this.setState({
+                rewardsState: result.rows[0],
+            });
+        } catch (e) {
+            console.log('\nCaught exception: ' + e);
+
+            if (e instanceof RpcError) {
+                console.log(JSON.stringify(e.json, null, 2));
+            }
+        }
+    }
+
+    async getRewardsActionTypes() {
+        try {
+            var result = await rpc.get_table_rows({
+                code: rewardsContract.account,
+                scope: rewardsContract.account,
+                table: 'rwdsacttyps'
+            });
+            console.log(result);
+
+            this.setState({
+                rewardsActionTypes: result.rows,
+            });
+        } catch (e) {
+            console.log('\nCaught exception: ' + e);
+
+            if (e instanceof RpcError) {
+                console.log(JSON.stringify(e.json, null, 2));
+            }
+        }
+    }
+
     signOut() {
         scatter.forgetIdentity();
         //this.stopGetBalance();
@@ -289,6 +443,23 @@ class Main extends Component {
                     <ul>
                         <li>Distribution Percentage: {(inflationPool.percentage * 1).toPrecision(2)}%</li>
                         <li>Balance: {inflationPool.balance}</li>
+                    </ul>
+                </li>
+            )
+        });
+        const rewardsActionTypes = this.state.rewardsActionTypes.map(actionType => {
+            return (
+                <li key={actionType.id}>
+                    {actionType.type}
+                    <ul>
+                        <li>Max Reward: {actionType.max_reward}</li>
+                        <li>Max Pay Outs: {actionType.max_pay_outs}</li>
+                        <li>Actions
+                            <Actions actionTypeId={actionType.id} />
+                        </li>
+                        <li>Historical Actions
+                            <HistoricalActions actionTypeId={actionType.id} />
+                        </li>
                     </ul>
                 </li>
             )
@@ -405,6 +576,32 @@ class Main extends Component {
                                 tooltip={(data) => data.label}
                             />
                         </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="column">
+                        <hr className="separator"/>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="column">
+                        <h4>Rewards</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="one-third column">
+                        {this.state.rewardsState &&
+                        <ul>
+                            <li>Payable Actions: {this.state.rewardsState.payable_actions}</li>
+                        </ul>
+                        }
+                    </div>
+                    <div className="two-thirds column">
+                        {this.state.rewardsActionTypes.length > 0 &&
+                            <ul>
+                                {rewardsActionTypes}
+                            </ul>
+                        }
                     </div>
                 </div>
             </div>
