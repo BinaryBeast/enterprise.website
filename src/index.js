@@ -16,6 +16,11 @@ const tokenContract = {
 const rewardsContract = {
     account: "gre1111111p1",
 }
+const identityState = {
+    anonymous: "anonymous",
+    identified: "identified",
+    scatterError: "scatterError",
+}
 //const rpc = new JsonRpc('https://jungle2.cryptolions.io:443');
 const rpc = new JsonRpc('http://127.0.0.1:8888');
 const network = {
@@ -196,6 +201,7 @@ class Main extends Component {
 
             ],
             displayIdentityInfo: false,
+            identityState: identityState.anonymous,
         }
     }
 
@@ -299,7 +305,9 @@ class Main extends Component {
         }
     }
 
-    async authenticate() {
+    async connectScatter() {
+        if (scatter) { return true; }
+
         await ScatterJS.scatter.connect("Enterprise").then(connected => {
             console.log('Connecting to Scatter: ' + connected);
             if (!connected)
@@ -316,7 +324,21 @@ class Main extends Component {
             console.log(error);
         });
 
+        if (scatter) {
+            return true;
+        }
+
+        return false;
+    }
+
+    async authenticate() {
         console.log('Attempting to identify');
+        if (!await this.connectScatter()) {
+            this.setState({
+                identityState: identityState.scatterError,
+            });
+            return;
+        }
 
         const requiredFields = {
             accounts: [network]
@@ -330,12 +352,12 @@ class Main extends Component {
 
         var balance = await this.getBalance(scatter.identity.accounts[0].name);
         this.setState({
-            displayIdentityInfo: true,
             identity: {
                 token: {
                     balance: balance,
                 }
-            }
+            },
+            identityState: identityState.identified,
         });
     }
 
@@ -407,7 +429,7 @@ class Main extends Component {
             identity: {
                 token: null,
             },
-            displayIdentityInfo: false,
+            identityState: identityState.anonymous,
         })
     }
 
@@ -480,14 +502,28 @@ class Main extends Component {
                 </div>
                 <div className="row">
                     <div className="column">
-                    <hr className="separator"/>
+                        <hr className="separator"/>
                     </div>
                 </div>
-                {this.state.displayIdentityInfo &&
+                {this.state.identityState == identityState.scatterError &&
                 <div className="row">
                     <div className="column">
+                        <h5>Scatter error - you might need to open Scatter</h5>
+                    </div>
+                </div>
+                }
+                {this.state.identityState == identityState.identified &&
+                <div>
+                    <div className="row">
+                        <div className="column">
                             <h4>Account Info</h4>
                             <IdentityInfo identity={scatter.identity} token={this.state.identity.token} />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="column">
+                            <hr className="separator"/>
+                        </div>
                     </div>
                 </div>
                 }
