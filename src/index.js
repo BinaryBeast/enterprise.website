@@ -21,14 +21,27 @@ const identityState = {
     identified: "identified",
     scatterError: "scatterError",
 }
-//const rpc = new JsonRpc('https://jungle2.cryptolions.io:443');
-const rpc = new JsonRpc('http://127.0.0.1:8888');
-const network = {
-    blockchain: 'eos',
-    protocol: 'https',
-    host: 'jungle2.cryptolions.io',
-    port: 443,
-    chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473'
+const networks = {
+    local: {
+        blockchain: 'eos',
+        protocol: 'http',
+        host: '127.0.0.1',
+        port: 8888,
+        chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f'
+    },
+    jungle: {
+        blockchain: 'eos',
+        protocol: 'https',
+        host: 'jungle2.cryptolions.io',
+        port: 443,
+        chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473'
+    }
+}
+const network = networks.local;
+const rpc = new JsonRpc(getRpc());
+
+function getRpc() {
+    return network.protocol + "://" + network.host + ":" + network.port;
 }
 
 window.ScatterJS = null;
