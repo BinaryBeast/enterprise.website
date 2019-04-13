@@ -182,6 +182,78 @@ class HistoricalActions extends Component {
     }
 }
 
+class OwnerActions extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            ownerActions: [],
+        }
+    }
+
+    componentDidMount() {
+        console.log(this.props.ownerId);
+        this.getRewardsActions(this.props.actionTypes, this.props.ownerId);
+    }
+
+    async getRewardsActions(actionTypes, ownerId) {
+        try {
+            var actionResults = await Promise.all(actionTypes.map(async actionType => {
+                var actions = await rpc.get_table_rows({
+                    code: rewardsContract.account,
+                    scope: actionType.id,
+                    table: 'rwdsacts',
+                    table_key: 'owner',
+                    lower_bound: ownerId,
+                });
+
+                return {
+                    actionType: {
+                        id: actionType.id,
+                        type: actionType.type,
+                    },
+                    actions: actions.rows,
+                }
+            }));
+            console.log(actionResults);
+
+            this.setState({
+                ownerActions: actionResults,
+            });
+        } catch (e) {
+            console.log('\nCaught exception: ' + e);
+
+            if (e instanceof RpcError) {
+                console.log(JSON.stringify(e.json, null, 2));
+            }
+        }
+    }
+
+    render() {
+        const rewardsActions = this.state.ownerActions.map(ownerAction => {
+            const actions = ownerAction.actions.map(action => {
+                return (
+                    <li key={action.id}>
+                        {action.id} | {action.source} | {action.current_pay_outs} | {action.rewards_paid}
+                    </li>
+                )
+            });
+
+            return (
+                <li key={ownerAction.actionType.id}>
+                    {ownerAction.actionType.type}
+                    <ul>{actions}</ul>
+                </li>
+            )
+        });
+
+        return (
+            <ul>
+                {rewardsActions}
+            </ul>
+        );
+    }
+}
+
 class Main extends Component {
     constructor(props) {
         super(props);
@@ -531,6 +603,7 @@ class Main extends Component {
                         <div className="column">
                             <h4>Account Info</h4>
                             <IdentityInfo identity={scatter.identity} token={this.state.identity.token} />
+                            <OwnerActions actionTypes={this.state.rewardsActionTypes} ownerId={scatter.identity.accounts[0].name} />
                         </div>
                     </div>
                     <div className="row">
