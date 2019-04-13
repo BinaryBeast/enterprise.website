@@ -15,6 +15,34 @@ const tokenContract = {
 };
 const rewardsContract = {
     account: "gre1111111p1",
+    tables: {
+        actions: {
+            name: "rwdsacts",
+            indexes: {
+                source: {
+                    number: 2,
+                    type: "i64"
+                },
+                owner: {
+                    number: 3,
+                    type: "i64"
+                }
+            }
+        },
+        historicalActions: {
+            name: "rwdshistacts",
+            indexes: {
+                source: {
+                    number: 2,
+                    type: "i64"
+                },
+                owner: {
+                    number: 3,
+                    type: "i64"
+                }
+            }
+        }
+    }
 }
 const identityState = {
     anonymous: "anonymous",
@@ -99,7 +127,7 @@ class Actions extends Component {
             var result = await rpc.get_table_rows({
                 code: rewardsContract.account,
                 scope: actionTypeId,
-                table: 'rwdsacts'
+                table: rewardsContract.tables.actions.name
             });
             console.log(result);
 
@@ -119,7 +147,7 @@ class Actions extends Component {
         const rewardsActions = this.state.actions.map(action => {
             return (
                 <li key={action.id}>
-                    {action.id} | {action.source} | {action.owner} | {action.current_pay_outs} | {action.rewards_paid}
+                    ID: {action.id} | Source: {action.source} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid}
                 </li>
             )
         });
@@ -149,7 +177,7 @@ class HistoricalActions extends Component {
             var result = await rpc.get_table_rows({
                 code: rewardsContract.account,
                 scope: actionTypeId,
-                table: 'rwdshistacts'
+                table: rewardsContract.tables.historicalActions.name
             });
             console.log(result);
 
@@ -169,7 +197,7 @@ class HistoricalActions extends Component {
         const rewardsActions = this.state.actions.map(action => {
             return (
                 <li key={action.id}>
-                    {action.id} | {action.source} | {action.owner} | {action.rewards_paid}
+                    ID: {action.id} | Source: {action.source} | Rewards Paid {action.rewards_paid}
                 </li>
             )
         });
@@ -201,10 +229,14 @@ class OwnerActions extends Component {
                 var actions = await rpc.get_table_rows({
                     code: rewardsContract.account,
                     scope: actionType.id,
-                    table: 'rwdsacts',
-                    table_key: 'owner',
+                    table: rewardsContract.tables.actions.name,
+                    index_position: rewardsContract.tables.actions.indexes.owner.number,
+                    key_type: rewardsContract.tables.actions.indexes.owner.type,
+                    upper_bound: ownerId,
                     lower_bound: ownerId,
                 });
+
+                console.log(actions);
 
                 return {
                     actionType: {
@@ -233,7 +265,83 @@ class OwnerActions extends Component {
             const actions = ownerAction.actions.map(action => {
                 return (
                     <li key={action.id}>
-                        {action.id} | {action.source} | {action.current_pay_outs} | {action.rewards_paid}
+                        ID: {action.id} | Source: {action.source} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid}
+                    </li>
+                )
+            });
+
+            return (
+                <li key={ownerAction.actionType.id}>
+                    {ownerAction.actionType.type}
+                    <ul>{actions}</ul>
+                </li>
+            )
+        });
+
+        return (
+            <ul>
+                {rewardsActions}
+            </ul>
+        );
+    }
+}
+
+class OwnerHistoricalActions extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            ownerActions: [],
+        }
+    }
+
+    componentDidMount() {
+        console.log(this.props.ownerId);
+        this.getRewardsActions(this.props.actionTypes, this.props.ownerId);
+    }
+
+    async getRewardsActions(actionTypes, ownerId) {
+        try {
+            var actionResults = await Promise.all(actionTypes.map(async actionType => {
+                var actions = await rpc.get_table_rows({
+                    code: rewardsContract.account,
+                    scope: actionType.id,
+                    table: rewardsContract.tables.historicalActions.name,
+                    index_position: rewardsContract.tables.historicalActions.indexes.owner.number,
+                    key_type: rewardsContract.tables.historicalActions.indexes.owner.type,
+                    upper_bound: ownerId,
+                    lower_bound: ownerId,
+                });
+
+                console.log(actions);
+
+                return {
+                    actionType: {
+                        id: actionType.id,
+                        type: actionType.type,
+                    },
+                    actions: actions.rows,
+                }
+            }));
+            console.log(actionResults);
+
+            this.setState({
+                ownerActions: actionResults,
+            });
+        } catch (e) {
+            console.log('\nCaught exception: ' + e);
+
+            if (e instanceof RpcError) {
+                console.log(JSON.stringify(e.json, null, 2));
+            }
+        }
+    }
+
+    render() {
+        const rewardsActions = this.state.ownerActions.map(ownerAction => {
+            const actions = ownerAction.actions.map(action => {
+                return (
+                    <li key={action.id}>
+                        ID: {action.id} | Source: {action.source} | Rewards Paid {action.rewards_paid}
                     </li>
                 )
             });
@@ -603,7 +711,16 @@ class Main extends Component {
                         <div className="column">
                             <h4>Account Info</h4>
                             <IdentityInfo identity={scatter.identity} token={this.state.identity.token} />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="one-half column">
+                            <h5>Actions</h5>
                             <OwnerActions actionTypes={this.state.rewardsActionTypes} ownerId={scatter.identity.accounts[0].name} />
+                        </div>
+                        <div className="one-half column">
+                            <h5>Historical Actions</h5>
+                            <OwnerHistoricalActions actionTypes={this.state.rewardsActionTypes} ownerId={scatter.identity.accounts[0].name} />
                         </div>
                     </div>
                     <div className="row">
