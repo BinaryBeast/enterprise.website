@@ -506,7 +506,7 @@ class Main extends Component {
                     <div className="column">
                         <h3 className="u-pull-left">Enterprise Token, To Boldly Go...</h3>
                         <div className="u-pull-right">
-                        {this.state.displayIdentityInfo ?
+                        {this.state.identityState == identityState.identified ?
                             <button className="button-primary" onClick={() => this.signOut()}>Sign Out</button> :
                             <AuthenticateButton onClick={() => this.authenticate()} />
                         }
