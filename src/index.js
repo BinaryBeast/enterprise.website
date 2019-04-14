@@ -691,56 +691,13 @@ class Main extends Component {
     // }
 
     render() {
-        const pieChartData = this.state.inflationPools.map(pool => {
-            return {
-                id: pool.account,
-                label: pool.account + " (" + (pool.percentage * 1).toPrecision(2) + "%)",
-                value: parseFloat((pool.percentage * 1).toPrecision(2)),
-            }
-        });
-        const waffleChartData = [
-            {
-                id: "Supply",
-                label: "Supply",
-                value: Number(((this.state.token.supplyValue / this.state.token.maxSupplyValue) * 100).toPrecision(2)),
-            },
-        ]
-        const inflationPools = this.state.inflationPools.map(inflationPool => {
-            return (
-                <li key={inflationPool.account}>
-                    <a href={ "https://jungle.eospark.com/account/" + inflationPool.account} target="_blank">{inflationPool.account}</a>
-                    <ul>
-                        <li>Distribution Percentage: {(inflationPool.percentage * 1).toPrecision(2)}%</li>
-                        <li>Balance: {inflationPool.balance}</li>
-                    </ul>
-                </li>
-            )
-        });
-        const rewardsActionTypes = this.state.rewardsActionTypes.map(actionType => {
-            return (
-                <li key={actionType.id}>
-                    {actionType.type}
-                    <ul>
-                        <li>Max Reward: {actionType.max_reward}</li>
-                        <li>Max Pay Outs: {actionType.max_pay_outs}</li>
-                        <li>Actions
-                            <Actions actionTypeId={actionType.id} />
-                        </li>
-                        <li>Historical Actions
-                            <HistoricalActions actionTypeId={actionType.id} />
-                        </li>
-                    </ul>
-                </li>
-            )
-        });
-
         return (
             <div className="container">
                 <div className="row header">
                     <div className="column">
                         <h3 className="u-pull-left">Enterprise Token, To Boldly Go...</h3>
                         <div className="u-pull-right">
-                        {this.state.identityState == identityState.identified ?
+                        {this.isIdentified() ?
                             <button className="button-primary" onClick={() => this.signOut()}>Sign Out</button> :
                             <AuthenticateButton onClick={() => this.authenticate()} />
                         }
@@ -759,7 +716,7 @@ class Main extends Component {
                     </div>
                 </div>
                 }
-                {this.state.identityState == identityState.identified &&
+                {this.isIdentified() &&
                 <div>
                     <div className="row">
                         <div className="column">
@@ -825,7 +782,13 @@ class Main extends Component {
                     <div className="two-thirds column">
                         <div className="token-info-chart">
                             <ResponsiveWaffle
-                                data={waffleChartData}
+                                data={[
+                                    {
+                                        id: "Supply",
+                                        label: "Supply",
+                                        value: Number(((this.state.token.supplyValue / this.state.token.maxSupplyValue) * 100).toPrecision(2)),
+                                    },
+                                ]}
                                 total={100}
                                 rows={10}
                                 columns={10}
@@ -859,14 +822,30 @@ class Main extends Component {
                     <div className="one-third column">
                     {this.state.inflationPools.length > 0 &&
                         <ul>
-                            {inflationPools}
+                        {this.state.inflationPools.map(inflationPool => {
+                            return (
+                                <li key={inflationPool.account}>
+                                    <a href={ "https://jungle.eospark.com/account/" + inflationPool.account} target="_blank">{inflationPool.account}</a>
+                                    <ul>
+                                        <li>Distribution Percentage: {(inflationPool.percentage * 1).toPrecision(2)}%</li>
+                                        <li>Balance: {inflationPool.balance}</li>
+                                    </ul>
+                                </li>
+                            )
+                        })}
                         </ul>
                     }
                     </div>
                     <div className="two-thirds column">
                         <div className="chart">
                             <ResponsivePie
-                                data={pieChartData}
+                                data={this.state.inflationPools.map(pool => {
+                                    return {
+                                        id: pool.account,
+                                        label: pool.account + " (" + (pool.percentage * 1).toPrecision(2) + "%)",
+                                        value: parseFloat((pool.percentage * 1).toPrecision(2)),
+                                    }
+                                })}
                                 innerRadius={0.5}
                                 padAngle={0.7}
                                 cornerRadius={3}
@@ -915,7 +894,23 @@ class Main extends Component {
                     <div className="two-thirds column">
                         {this.state.rewardsActionTypes.length > 0 &&
                             <ul>
-                                {rewardsActionTypes}
+                            {this.state.rewardsActionTypes.map(actionType => {
+                                return (
+                                    <li key={actionType.id}>
+                                        {actionType.type}
+                                        <ul>
+                                            <li>Max Reward: {actionType.max_reward}</li>
+                                            <li>Max Pay Outs: {actionType.max_pay_outs}</li>
+                                            <li>Actions
+                                                <Actions actionTypeId={actionType.id} />
+                                            </li>
+                                            <li>Historical Actions
+                                                <HistoricalActions actionTypeId={actionType.id} />
+                                            </li>
+                                        </ul>
+                                    </li>
+                                )
+                            })}
                             </ul>
                         }
                     </div>
