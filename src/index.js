@@ -124,6 +124,8 @@ async function singleTransact(contract, action, authorization, data) {
         if (e instanceof RpcError) {
             console.log(JSON.stringify(e.json, null, 2));
         }
+
+        return false;
     }
 }
 
@@ -274,8 +276,9 @@ class OwnerActions extends Component {
     }
 
     componentDidMount() {
-        console.log(this.props.ownerId);
         this.getRewardsActions(this.props.actionTypes, this.props.ownerId);
+
+        this.intervalTokenInfo = setInterval(() => this.getRewardsActions(this.props.actionTypes, this.props.ownerId), 1000);
     }
 
     async getRewardsActions(actionTypes, ownerId) {
@@ -291,8 +294,6 @@ class OwnerActions extends Component {
                     lower_bound: ownerId,
                 });
 
-                console.log(actions);
-
                 return {
                     actionType: {
                         id: actionType.id,
@@ -301,7 +302,6 @@ class OwnerActions extends Component {
                     actions: actions.rows,
                 }
             }));
-            console.log(actionResults);
 
             this.setState({
                 ownerActions: actionResults,
@@ -350,8 +350,9 @@ class OwnerHistoricalActions extends Component {
     }
 
     componentDidMount() {
-        console.log(this.props.ownerId);
         this.getRewardsActions(this.props.actionTypes, this.props.ownerId);
+
+        this.intervalTokenInfo = setInterval(() => this.getRewardsActions(this.props.actionTypes, this.props.ownerId), 1000);
     }
 
     async getRewardsActions(actionTypes, ownerId) {
@@ -367,8 +368,6 @@ class OwnerHistoricalActions extends Component {
                     lower_bound: ownerId,
                 });
 
-                console.log(actions);
-
                 return {
                     actionType: {
                         id: actionType.id,
@@ -377,7 +376,6 @@ class OwnerHistoricalActions extends Component {
                     actions: actions.rows,
                 }
             }));
-            console.log(actionResults);
 
             this.setState({
                 ownerActions: actionResults,
@@ -442,13 +440,15 @@ class Main extends Component {
                     balance: null,
                 }
             },
+            user: {
+
+            },
             rewardsState: {
 
             },
             rewardsActionTypes: [
 
             ],
-            displayIdentityInfo: false,
             identityState: identityState.anonymous,
         }
     }
@@ -772,6 +772,7 @@ class Main extends Component {
                         {this.state.rewardsActionTypes.map(actionType => {
                             return (
                                 <button
+                                    key={actionType.type}
                                     className="button-primary"
                                     onClick={() => this.createAction(
                                         {
