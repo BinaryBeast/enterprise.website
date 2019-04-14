@@ -72,6 +72,61 @@ function getRpc() {
     return network.protocol + "://" + network.host + ":" + network.port;
 }
 
+async function connectScatter() {
+    if (scatter) { return true; }
+
+    await ScatterJS.scatter.connect("Enterprise").then(connected => {
+        console.log('Connecting to Scatter: ' + connected);
+        if (!connected)
+        {
+            console.log('Scatter not connected');
+    
+            return false;
+        }
+    
+        scatter = ScatterJS.scatter;
+        eosapi = scatter.eos(network, Api, {rpc, beta3: true});
+    }).catch(error => {
+        console.log('Error while connecting to Scatter');
+        console.log(error);
+    });
+
+    if (scatter) {
+        return true;
+    }
+
+    return false;
+}
+
+async function singleTransact(contract, action, authorization, data) {
+    try {
+        const result = await eosapi.transact({
+            actions: [{
+                account: contract,
+                name: action,
+                authorization: [{
+                    actor: authorization.name,
+                    permission: authorization.authority,
+                }],
+                data: data,
+            }],
+        }, {
+            blocksBehind: 3,
+            expireSeconds: 30,
+        });
+
+        console.log(result);
+        return result;
+    } catch (e) {
+        console.log('\nCaught exception: ' + e);
+        console.log(e);
+
+        if (e instanceof RpcError) {
+            console.log(JSON.stringify(e.json, null, 2));
+        }
+    }
+}
+
 window.ScatterJS = null;
 ScatterJS.plugins(new ScatterEOS());
 var scatter = null;
@@ -498,35 +553,9 @@ class Main extends Component {
         }
     }
 
-    async connectScatter() {
-        if (scatter) { return true; }
-
-        await ScatterJS.scatter.connect("Enterprise").then(connected => {
-            console.log('Connecting to Scatter: ' + connected);
-            if (!connected)
-            {
-                console.log('Scatter not connected');
-        
-                return false;
-            }
-        
-            scatter = ScatterJS.scatter;
-            eosapi = scatter.eos(network, Api, {rpc});
-        }).catch(error => {
-            console.log('Error while connecting to Scatter');
-            console.log(error);
-        });
-
-        if (scatter) {
-            return true;
-        }
-
-        return false;
-    }
-
     async authenticate() {
         console.log('Attempting to identify');
-        if (!await this.connectScatter()) {
+        if (!await connectScatter()) {
             this.setState({
                 identityState: identityState.scatterError,
             });
@@ -613,6 +642,31 @@ class Main extends Component {
                 console.log(JSON.stringify(e.json, null, 2));
             }
         }
+    }
+
+    async createAction(authorization, sourceAccount, ownerAccount, actionTypeId) {
+        if (!this.isIdentified()) {
+            console.log("User not identified");
+            return;
+        }
+
+        const result = await singleTransact(
+            rewardsContract.account,
+            'createact',
+            {
+                name: authorization.name,
+                authority: authorization.authority,
+            },
+            {
+                source: sourceAccount,
+                owner: ownerAccount,
+                type_id: actionTypeId,
+            }
+        );
+    }
+
+    isIdentified() {
+        return this.state.identityState == identityState.identified;
     }
 
     signOut() {
@@ -711,6 +765,28 @@ class Main extends Component {
                         <div className="column">
                             <h4>Account Info</h4>
                             <IdentityInfo identity={scatter.identity} token={this.state.identity.token} />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="one-third column">
+                            <button
+                                className="button-primary"
+                                onClick={() => this.createAction(
+                                    {
+                                        name: scatter.identity.accounts[0].name,
+                                        authority: scatter.identity.accounts[0].authority,
+                                    },
+                                    'gre1111111p3',
+                                    scatter.identity.accounts[0].name,
+                                    1
+                                )}
+                            >
+                                    Create Match
+                            </button>
+                        </div>
+                        <div className="one-third column">
+                        </div>
+                        <div className="one-third column">
                         </div>
                     </div>
                     <div className="row">
