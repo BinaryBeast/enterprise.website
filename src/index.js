@@ -768,25 +768,25 @@ class Main extends Component {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="one-third column">
-                            <button
-                                className="button-primary"
-                                onClick={() => this.createAction(
-                                    {
-                                        name: scatter.identity.accounts[0].name,
-                                        authority: scatter.identity.accounts[0].authority,
-                                    },
-                                    'gre1111111p3',
-                                    scatter.identity.accounts[0].name,
-                                    1
-                                )}
-                            >
-                                    Create Match
-                            </button>
-                        </div>
-                        <div className="one-third column">
-                        </div>
-                        <div className="one-third column">
+                        <div className="column">
+                        {this.state.rewardsActionTypes.map(actionType => {
+                            return (
+                                <button
+                                    className="button-primary"
+                                    onClick={() => this.createAction(
+                                        {
+                                            name: scatter.identity.accounts[0].name,
+                                            authority: scatter.identity.accounts[0].authority,
+                                        },
+                                        'gre1111111p3',
+                                        scatter.identity.accounts[0].name,
+                                        actionType.id
+                                    )}
+                                >
+                                    {actionType.type}
+                                </button>
+                            )
+                        })}
                         </div>
                     </div>
                     <div className="row">
