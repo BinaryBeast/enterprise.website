@@ -208,7 +208,7 @@ class Actions extends Component {
         const rewardsActions = this.state.actions.map(action => {
             return (
                 <li key={action.id}>
-                    ID: {action.id} | Source: {action.source} | Owner: {action.owner} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid} | Created: {parseEosDateTime(action.created)} | Last Paid: {parseEosDateTime(action.last_paid)}
+                    ID: {action.id} | Source: {action.source} | Owner: {action.owner} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid} | Created: {parseEosDateTime(action.created)}
                 </li>
             )
         });
@@ -324,7 +324,7 @@ class OwnerActions extends Component {
             const actions = ownerAction.actions.map(action => {
                 return (
                     <li key={action.id}>
-                        ID: {action.id} | Source: {action.source} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid} | Created: {parseEosDateTime(action.created)} | Last Paid: {parseEosDateTime(action.last_paid)}
+                        ID: {action.id} | Source: {action.source} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid} | Created: {parseEosDateTime(action.created)}
                     </li>
                 )
             });
@@ -892,6 +892,8 @@ class Main extends Component {
                         {this.state.rewardsState &&
                         <ul>
                             <li>Payable Actions: {this.state.rewardsState.payable_actions}</li>
+                            <li>Last Pay Out Amount: {this.state.rewardsState.last_pay_out_amount}</li>
+                            <li>Last Pay Out Time: {parseEosDateTime(this.state.rewardsState.last_pay_out_time)}</li>
                         </ul>
                         }
                     </div>
