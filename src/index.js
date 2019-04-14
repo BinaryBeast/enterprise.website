@@ -905,6 +905,7 @@ class Main extends Component {
                                         <ul>
                                             <li>Max Reward: {actionType.max_reward}</li>
                                             <li>Max Pay Outs: {actionType.max_pay_outs}</li>
+                                            <li>Max Reward Per Pay Out: {actionType.max_rpp}</li>
                                             <li>Actions
                                                 <Actions actionTypeId={actionType.id} />
                                             </li>
