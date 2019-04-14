@@ -204,7 +204,7 @@ class Actions extends Component {
         const rewardsActions = this.state.actions.map(action => {
             return (
                 <li key={action.id}>
-                    ID: {action.id} | Source: {action.source} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid}
+                    ID: {action.id} | Source: {action.source} | Owner: {action.owner} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid}
                 </li>
             )
         });
@@ -254,7 +254,7 @@ class HistoricalActions extends Component {
         const rewardsActions = this.state.actions.map(action => {
             return (
                 <li key={action.id}>
-                    ID: {action.id} | Source: {action.source} | Rewards Paid {action.rewards_paid}
+                    ID: {action.id} | Source: {action.source} | Owner: {action.owner} | Rewards Paid {action.rewards_paid}
                 </li>
             )
         });
