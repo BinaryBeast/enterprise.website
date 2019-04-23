@@ -3,6 +3,7 @@ import './skeleton.css';
 import './normalize.css';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import uuid from 'uuid/v4';
 import { Api, JsonRpc, RpcError } from 'eosjs';
 import ScatterJS from 'scatterjs-core';
 import ScatterEOS from 'scatterjs-plugin-eosjs2';
@@ -207,8 +208,8 @@ class Actions extends Component {
     render() {
         const rewardsActions = this.state.actions.map(action => {
             return (
-                <li key={action.id}>
-                    ID: {action.id} | Source: {action.source} | Owner: {action.owner} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid} | Created: {parseEosDateTime(action.created)}
+                <li key={action.uuid}>
+                    UUID: {action.uuid} | Source: {action.source} | Owner: {action.owner} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid} | Created: {parseEosDateTime(action.created)}
                 </li>
             )
         });
@@ -257,8 +258,8 @@ class HistoricalActions extends Component {
     render() {
         const rewardsActions = this.state.actions.map(action => {
             return (
-                <li key={action.id}>
-                    ID: {action.id} | Source: {action.source} | Owner: {action.owner} | Rewards Paid {action.rewards_paid} | Created: {parseEosDateTime(action.created)} | Completed: {parseEosDateTime(action.completed)}
+                <li key={action.uuid}>
+                    UUID: {action.uuid} | Source: {action.source} | Owner: {action.owner} | Rewards Paid {action.rewards_paid} | Created: {parseEosDateTime(action.created)} | Completed: {parseEosDateTime(action.completed)}
                 </li>
             )
         });
@@ -323,8 +324,8 @@ class OwnerActions extends Component {
         const rewardsActions = this.state.ownerActions.map(ownerAction => {
             const actions = ownerAction.actions.map(action => {
                 return (
-                    <li key={action.id}>
-                        ID: {action.id} | Source: {action.source} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid} | Created: {parseEosDateTime(action.created)}
+                    <li key={action.uuid}>
+                        UUID: {action.uuid} | Source: {action.source} | Current Pay-Outs: {action.current_pay_outs} | Rewards Paid: {action.rewards_paid} | Created: {parseEosDateTime(action.created)}
                     </li>
                 )
             });
@@ -397,8 +398,8 @@ class OwnerHistoricalActions extends Component {
         const rewardsActions = this.state.ownerActions.map(ownerAction => {
             const actions = ownerAction.actions.map(action => {
                 return (
-                    <li key={action.id}>
-                        ID: {action.id} | Source: {action.source} | Rewards Paid {action.rewards_paid} | Created: {parseEosDateTime(action.created)} | Completed: {parseEosDateTime(action.completed)}
+                    <li key={action.uuid}>
+                        UUID: {action.uuid} | Source: {action.source} | Rewards Paid {action.rewards_paid} | Created: {parseEosDateTime(action.created)} | Completed: {parseEosDateTime(action.completed)}
                     </li>
                 )
             });
@@ -665,6 +666,7 @@ class Main extends Component {
                 source: sourceAccount,
                 owner: ownerAccount,
                 type_id: actionTypeId,
+                uuid_salt: uuid(),
             }
         );
     }
