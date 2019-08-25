@@ -11,11 +11,11 @@ import { ResponsivePie } from '@nivo/pie'
 import { ResponsiveWaffle } from '@nivo/waffle'
 
 const tokenContract = {
-    account: 'gre111111111',
+    account: 'token1111111',
     symbol: 'ENT'
 };
 const rewardsContract = {
-    account: "gre1111111p1",
+    account: "rewardspool1",
     tables: {
         actions: {
             name: "rwdsacts",
