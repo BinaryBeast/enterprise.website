@@ -11,11 +11,11 @@ import { ResponsivePie } from '@nivo/pie'
 import { ResponsiveWaffle } from '@nivo/waffle'
 
 const tokenContract = {
-    account: 'token1111111',
+    account: 'enttoken1111',
     symbol: 'ENT'
 };
 const rewardsContract = {
-    account: "rewardspool1",
+    account: "entrewpool11",
     tables: {
         actions: {
             name: "rwdsacts",
@@ -64,9 +64,16 @@ const networks = {
         host: 'jungle2.cryptolions.io',
         port: 443,
         chainId: 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473'
+    },
+    telostn: {
+        blockchain: 'eos',
+        protocol: 'https',
+        host: 'api-test.telosfoundation.io',
+        port: 443,
+        chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
     }
 }
-const network = networks.local;
+const network = networks.telostn;
 const rpc = new JsonRpc(getRpc());
 
 function getRpc() {
